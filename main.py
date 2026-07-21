@@ -35,7 +35,9 @@ for i in range(int(num_snails)):
     name = st.sidebar.text_input(f"Nama Siput {i+1}:", value=default_val, key=f"snail_{i}")
     snail_names.append(name)
 
-finish_line = 40  # Jarak garis finish (panjang lintasan)
+# --- UBAH BAGIAN INI ---
+# Diperpanjang ke 100 langkah agar durasi balapan minimal ~10 detik
+finish_line = 100 
 
 st.write("---")
 
@@ -57,8 +59,7 @@ if st.button("🏁 MULAI BALAPAN!", type="primary"):
         finished = False
         
         for i in range(int(num_snails)):
-            # Pergerakan acak (pure random speed)
-            # Setiap step, siput maju antara 0 sampai 3 langkah
+            # Step acak: 0 sampai 3 langkah per frame
             step = random.randint(0, 3)
             positions[i] += step
             
@@ -84,7 +85,8 @@ if st.button("🏁 MULAI BALAPAN!", type="primary"):
         if finished:
             break
             
-        time.sleep(0.15)  # Delay frame animasi
+        # Delay frame animasi tetap 0.15 detik
+        time.sleep(0.15) 
 
     # Pengumuman Pemenang
     status_container.success(f"🎉 **SELAMAT!** Pemenangnya adalah **{winner}**! 🏆")
