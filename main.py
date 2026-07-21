@@ -35,19 +35,26 @@ for i in range(int(num_snails)):
     name = st.sidebar.text_input(f"Nama Siput {i+1}:", value=default_val, key=f"snail_{i}")
     snail_names.append(name)
 
-# --- UBAH BAGIAN INI ---
-# Diperpanjang ke 100 langkah agar durasi balapan minimal ~10 detik
+# Jarak lintasan (100 langkah = ~10-12 detik)
 finish_line = 100 
 
 st.write("---")
 
 # Tombol Mulai
 if st.button("🏁 MULAI BALAPAN!", type="primary"):
-    # Penampung UI animasi & status
     status_container = st.empty()
-    progress_containers = [st.empty() for _ in range(int(num_snails))]
     
-    # Inisialisasi Posisi Siput
+    # Membuat grid baris per baris menggunakan st.columns agar posisi Start & Finish SEJAJAR
+    rows = []
+    for _ in range(int(num_snails)):
+        col_name, col_start, col_track, col_finish = st.columns([2.5, 0.4, 7, 0.4])
+        rows.append({
+            "name": col_name,
+            "start": col_start,
+            "track": col_track,
+            "finish": col_finish
+        })
+    
     positions = [0] * int(num_snails)
     winner = None
     
@@ -59,34 +66,35 @@ if st.button("🏁 MULAI BALAPAN!", type="primary"):
         finished = False
         
         for i in range(int(num_snails)):
-            # Step acak: 0 sampai 3 langkah per frame
             step = random.randint(0, 3)
             positions[i] += step
             
-            # Cek jika sudah menyentuh atau melewati garis finish
             if positions[i] >= finish_line:
                 positions[i] = finish_line
                 if winner is None:
                     winner = snail_names[i]
                 finished = True
 
-        # Render Visual Lintasan
+        # Render Visual Lintasan Sejajar
         for i in range(int(num_snails)):
             pos = positions[i]
-            # Menghitung spasi jalan & sisa lintasan
-            track_before = " " * pos
-            track_after = " " * (finish_line - pos)
             
-            # Visualiasi: Nama | Spasi + Siput + Sisa Track | Finish
-            line_display = f"**{snail_names[i]:<20}** | `{track_before}🐌{track_after}` | 🏁"
-            progress_containers[i].markdown(line_display)
+            # Hitung proporsi posisi siput dalam bentuk spasi monospaced
+            # Menggunakan skala relatif agar muat rapi di layar
+            display_pos = int((pos / finish_line) * 45)
+            track_before = " " * display_pos
+            track_after = " " * (45 - display_pos)
+            
+            # Update tiap kolom
+            rows[i]["name"].markdown(f"**{snail_names[i]}**")
+            rows[i]["start"].markdown("🚨")  # Garis Start
+            rows[i]["track"].markdown(f"`{track_before}🐌{track_after}`") # Lintasan
+            rows[i]["finish"].markdown("🏁") # Garis Finish
 
-        # Hentikan loop jika ada yang finish
         if finished:
             break
             
-        # Delay frame animasi tetap 0.15 detik
-        time.sleep(0.15) 
+        time.sleep(0.15)
 
     # Pengumuman Pemenang
     status_container.success(f"🎉 **SELAMAT!** Pemenangnya adalah **{winner}**! 🏆")
